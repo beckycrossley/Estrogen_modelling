@@ -4,7 +4,7 @@ import pdb
 import numpy as np
 from scipy.optimize import root
 from scipy.interpolate import interp1d, CubicSpline
-from numba import njit
+# from numba import njit
 
 import sys
 # sys.path.append('/Users/jess/Documents/projects/Ocular_PKPD_Studies/pints/BabyAntiVEGF/Growth/')
