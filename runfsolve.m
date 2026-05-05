@@ -2,13 +2,13 @@ clc;
 clear;
 
 % Initial guess
-x0 = [100; 50; 25];
+x0 = [0.16;27];
 
 % Solver options
 options = optimset( ...
     'Display','iter', ...
-    'TolFun',1e-10, ...
-    'TolX',1e-10);
+    'TolFun',1e-12, ...
+    'TolX',1e-12);
 
 % Solve steady state
 [x_ss, fval, exitflag] = fsolve(@steadystates, x0, options);
