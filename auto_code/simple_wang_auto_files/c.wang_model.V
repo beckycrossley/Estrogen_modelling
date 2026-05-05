@@ -1,0 +1,57 @@
+# immune_model.f90
+
+# Names of parameters (parnames) and state variables (unames)
+parnames = {1: 'V'}
+unames   = {1: 'C_in', 2: 'C_SR'}
+
+# Dimensions and problem settings
+NDIM = 4              # Number of state variables
+IPS  = 1              # Type of solution (steady-state/initial value problem)
+IRS  = 0              # No restart
+ILP  = 0              # Limit point detection enabled
+
+# Continuation parameter
+ICP  = ['V']       # Continue with respect to...
+
+
+# Mesh and collocation settings
+NTST = 100             # Number of mesh intervals
+NCOL = 5              # Number of collocation points per interval
+IAD  = 3              # Mesh adaptation method
+ISP  = 1              # Detect branch points and Hopf bifurcations
+ISW  = 1              # Positive direction for continuation
+IPLT = 0              # No plotting during continuation
+NBC  = 0              # Number of boundary conditions (0 since ODE)
+NINT = 0              # Number of integral constraints (none for this model)
+
+# Numerical parameters for continuation
+NMX  = 200000           # Maximum number of continuation steps
+NPR  = 100            # Output every NPR steps
+MXBF = 0              # No maximum number of bifurcations
+IID  = 1              # Diagnostic output level
+ITMX = 100              # Maximum number of continuation iterations
+ITNW = 5              # Maximum Newton corrections per step
+NWTN = 3              # Number of Newton corrections
+JAC  = -1              # Jacobian matrix not provided explicitly
+
+# Convergence tolerances
+EPSL = 1e-05          # Tolerance for parameters
+EPSU = 1e-05          # Tolerance for variables
+EPSS = 1e-03         # Tolerance for continuation step size
+
+# Step size control
+DS    = 1e-6          # Initial continuation step size
+DSMIN = 1e-8         # Minimum step size
+DSMAX = 1e-3           # Maximum step size
+IADS  = 1             # Automatic step size adjustment enabled
+
+# Parameter information
+NPAR = 2              # Total number of parameters 
+
+# State weightings
+THL = {}              # No weightings
+THU = {}              # No weightings
+
+# Stop condition for the continuation
+UZSTOP = {'V': [-80.0, 0.0]}
+
