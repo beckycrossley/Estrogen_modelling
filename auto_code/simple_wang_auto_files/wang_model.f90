@@ -118,6 +118,7 @@ subroutine FUNC(ndim, u, icp, par, ijac, f, dfdu, dfdp)
     Ca_in = u(1)
     Ca_SR = u(2)
 
+	V=par(1)
     !Flux terms
 	
 	!Jin term, calculating voltage gated information.
@@ -152,7 +153,7 @@ subroutine FUNC(ndim, u, icp, par, ijac, f, dfdu, dfdp)
     ! System equations ---------------------------------------------------------------------
 
     f(1) = delta*(Jin-Jpmca)-Jserca+Jipr+Jryr+Jleak! dCindt
-    f(2) = gamma*(Jserca-Jipr-Jryr-Jleak) ! dMdt
+    f(2) = gamma*(Jserca-Jipr-Jryr-Jleak) ! dCsrdt
 
 
     IF(ijac.EQ.0)RETURN
@@ -209,7 +210,7 @@ subroutine STPNT(ndim, u, par, t)
 
   
     ! Anterior dominant ss
-    par(1) = -60.0 ! Initial value for  parmetr of interst
+    par(1) = -60.0 ! Initial value for  parmeter of interst
     u(1) = 0.16097807 ! Cin SS Value
     u(2) = 27.41010233 ! C_SR SS value
 

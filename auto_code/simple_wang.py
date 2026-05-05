@@ -68,13 +68,13 @@ def main():
         #    print("Error occured for system: ", system)
         #    continue
     #else:
-    #    print("Running bifurcation analysis for system: ", system_chosen)
-    #    bd = run_simple_wang(parameter, system_chosen)
-    #    auto.plot(bd)
-    #    auto.wait()
+        print("Running bifurcation analysis for system: ", system_chosen)
+        bd = run_simple_wang(parameter, system_chosen)
+        auto.plot(bd)
+        #auto.wait()
 
     # Clean files
-    auto.clean()
+    #auto.clean()
 
 if __name__ == "__main__":
     # run_1d_bifurcation("beta1", "P1")
