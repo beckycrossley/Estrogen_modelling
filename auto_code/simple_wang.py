@@ -28,15 +28,97 @@ def run_simple_wang(parameter, system_chosen):
     print(rf"{'-'*100}")
     
     # Run the 1D bifurcation (omega) forwards
-    omega_forward = run(wang_model, NMX  = 1000000, NPR  = 100000000,
+    omega = run(wang_model, NMX  = 1000000, NPR  = 100000000,
                         EPSL = 1e-05, EPSU = 1e-05, EPSS = 1e-04,
                         DS = 1e-6, DSMIN = 1e-8, DSMAX = 5e-4,
-                        UZSTOP = {'V': [-100, 0]},
+                        UZSTOP = {'V': [-100, 20]},
                         JAC = 0)
     # Extract the fort.9 data
     fort9_df_fwd = parse_fort9(downsample=100)#claires code downsamples
     
+
+    # Extract the data and export to a csv file
+    omega_df = [extract_data(omega[0], data_label = ['SP'], system=system_chosen)]
+    pd.concat(omega_df).to_csv(Path(data_dir,system_chosen+"_sp_data.csv"), index = False)
+
     
+    # eigenvalues_df = fort9_df[[parameter_lab_auto, 'TY', 'stability', 'eigenvalues']]
+    # eigenvalues_df.to_csv(Path(data_dir,system_chosen+"_sp_eigenvalues.csv"), index = False)
+    fort9_df = fort9_df_fwd
+    
+    fort9_df = fort9_df.drop(columns=['eigenvalues'])
+    fort9_df['system_id'] = system_chosen
+    fort9_df.to_csv(Path(data_dir,system_chosen+"_sp_fort9.csv"), index = False)
+    
+    print(rf"{'-'*100}")
+    print(system_chosen + " : HOPF BIFURCATION 1")
+    print(rf"{'-'*100}")
+
+    hb1_start = load(omega('HB1'), ISW=1)
+    # Run forward
+    hb1_forward = run(hb1_start, IPS=2, MXBF = 1,
+                    ICP=['V', 'PERIOD'],
+                    THL =  {'PERIOD': 0.10},
+                    NTST = 100, NCOL = 5, NMX=400000, NPR=100000,
+                    DS=0.001, DSMAX = 1e-1,
+                    EPSL = 1e-4, EPSU = 1e-4, EPSS = 1e-2,
+                    SP = ['BP1'],ISW = -1,
+                    JAC = 0)
+    fort9_df_fwd = parse_fort9()
+    # Run backwards
+    hb1 = hb1_forward 
+    hb1_labels = ['HB1_fwd', 'HB1_bwd']
+
+    # Extract the data and export to a csv file
+    #hb1_df = [extract_data(hb1[i], data_label = hb1_labels[i], system=system_chosen) for i in range(len(hb1))]
+    #pd.concat(hb1_df).to_csv(Path(data_dir,system_chosen+"_hb1_data.csv"), index = False)
+
+    # Export the fort.9 data
+    #fort9_df_fwd['branch_id'] = 'HB1_fwd'
+    #fort9_df_bwd['branch_id'] = 'HB1_bwd'
+    #fort9_df = fort9_df_fwd #pd.concat([fort9_df_fwd, fort9_df_bwd])
+    #fort9_df = fort9_df.drop(columns=['multipliers'])
+    #fort9_df['system_id'] = system_chosen
+    #fort9_df.to_csv(Path(data_dir,system_chosen+"_hb1_fort9.csv"), index = False)
+
+
+    # Run from the second hopf bifurcation point for beta1 (omega has only 1 hopf point)
+    #-----------------------------------------------------------------------------------------
+    if (parameter == "omega"):
+        return omega + hb1
+    
+    print(rf"{'-'*100}")
+    print(system_chosen + " : HOPF BIFURCATION 2")
+    print(rf"{'-'*100}")
+    hb2_start = load(omega('HB2'), ISW=1)
+    # Run forward
+    hb2_forward = run(hb2_start, IPS=2, MXBF = 1,
+                    ICP=['V', 'PERIOD'],
+                    THL =  {'PERIOD': 0.10},
+                    NTST = 100, NCOL = 5, NMX=20000, NPR=100000,
+                    DS=0.001, DSMAX = 1e-1,
+                    EPSL = 1e-4, EPSU = 1e-4, EPSS = 1e-2,
+                    SP = ['BP1'],
+                    JAC = 0)
+    fort9_df_fwd = parse_fort9()
+
+    # Combine the solutions
+    hb2 = hb2_forward 
+    hb2_labels = ['HB2_fwd', 'HB2_bwd']
+
+    # Extract the data and export to a csv file
+    #hb2_df = [extract_data(hb2[i], data_label = hb2_labels[i], system=system_chosen) for i in range(len(hb2))]
+    #d.concat(hb2_df).to_csv(Path(data_dir, system_chosen+"_hb2_data.csv" ), index = False)
+
+    # Export the fort.9 data (we don't need to output the multipliers data)
+    #fort9_df_fwd['branch_id'] = 'HB2_fwd'
+    #fort9_df_bwd['branch_id'] = 'HB2_bwd'
+    #fort9_df = fort9_df_fwd #pd.concat([fort9_df_fwd, fort9_df_bwd])
+    #fort9_df = fort9_df.drop(columns=['multipliers'])
+    #fort9_df['system_id'] = system_chosen
+    #fort9_df.to_csv(Path(data_dir,system_chosen+"_hb2_fort9.csv"), index = False)
+
+    return omega + hb1 + hb2
     
     
 def main():
@@ -63,7 +145,7 @@ def main():
         print("Running bifurcation analysis for system: ", system)
         # Continue to next system even if there is an error
         #ry:
-        run_simple_wang(parameter, system)
+        #run_simple_wang(parameter, system)
         #except:
         #    print("Error occured for system: ", system)
         #    continue
@@ -71,10 +153,10 @@ def main():
         print("Running bifurcation analysis for system: ", system_chosen)
         bd = run_simple_wang(parameter, system_chosen)
         auto.plot(bd)
-        #auto.wait()
+        auto.wait()
 
     # Clean files
-    #auto.clean()
+    auto.clean()
 
 if __name__ == "__main__":
     # run_1d_bifurcation("beta1", "P1")

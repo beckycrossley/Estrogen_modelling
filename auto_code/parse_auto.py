@@ -23,7 +23,7 @@ def extract_data(branch, data_label, system = None):
         df['point_type'] = point_types
         if (system is not None):
             df['system_id'] = system
-        df['branch_id'] = data_label
+        #df['branch_id'] = data_label
         return(df)
 
 # Function to parse the data in the fort9 files

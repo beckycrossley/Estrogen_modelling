@@ -53,7 +53,7 @@ subroutine FUNC(ndim, u, icp, par, ijac, f, dfdu, dfdp)
     ! Fixed parameters
 	
 	! Calcium flux parameters
-	DOUBLE PRECISION :: Ca_0 = 2.0 		!Placeholder calcium outside the cell
+	DOUBLE PRECISION :: Ca_0 = 1000.0 		!Placeholder calcium outside the cell
     DOUBLE PRECISION :: k_PMCA = 0.4      ! Wang extrusion rate 
    	DOUBLE PRECISION :: V_Pmax = 4.5      ! Wang PMCA pump max rate 
 	DOUBLE PRECISION :: V_s = 4.5         ! Wang/Lytton SR uptake rate max for SERCA pump between 0.1 and 0.5
@@ -124,14 +124,16 @@ subroutine FUNC(ndim, u, icp, par, ijac, f, dfdu, dfdp)
 	!Jin term, calculating voltage gated information.
 	exp_term = EXP(-2.0 * V * Faraday / (R * T))
     exp_term_den = 1.0 - exp_term
-	IF(exp_term_den.LT.1e-8)THEN !ARC check this
+	IF(ABS(exp_term_den).LT.1e-8)THEN 
 		Vca = 1e-8
 	ELSE
 		Vca = V * (Ca_in - Ca_0 * exp_term) / exp_term_den
 	ENDIF
 	m = 1.0 / (1.0 + EXP(-(V - V_m) /k_m))
+	
 	I_Ca = g_Ca * m**2 * Vca
-    Jin = a_0-a_1*I_Ca/(2*Faraday) +a_2*P
+    Jin = a_0-a_1*I_Ca/(2*Faraday)! +a_2*P
+
 	
 	!Jpmca
     Jpmca = V_Pmax * (Ca_in**n) / (k_PMCA**n + Ca_in**n)
@@ -146,14 +148,17 @@ subroutine FUNC(ndim, u, icp, par, ijac, f, dfdu, dfdp)
 	sr_term = Ca_SR**4 / (k_ryr3**4 + Ca_SR**4)
 	P_RyR = activation * sr_term
     Jryr = k_RyR * P_RyR * (Ca_SR - Ca_in)
+
 	!Jleak
-    Jleak = k_leak * (Ca_SR - Ca_in)
+    Jleak = k_leak * (Ca_SR - Ca_in)!similar to python
+
 
 
     ! System equations ---------------------------------------------------------------------
 
     f(1) = delta*(Jin-Jpmca)-Jserca+Jipr+Jryr+Jleak! dCindt
     f(2) = gamma*(Jserca-Jipr-Jryr-Jleak) ! dCsrdt
+	!print *, f(1),f(2)
 
 
     IF(ijac.EQ.0)RETURN
@@ -211,8 +216,8 @@ subroutine STPNT(ndim, u, par, t)
   
     ! Anterior dominant ss
     par(1) = -60.0 ! Initial value for  parmeter of interst
-    u(1) = 0.16097807 ! Cin SS Value
-    u(2) = 27.41010233 ! C_SR SS value
+    u(1) = 0.160942 ! Cin SS Value
+    u(2) = 27.409088 ! C_SR SS value
 
 
 
