@@ -55,12 +55,13 @@ def run_simple_wang(parameter, system_chosen):
     print(rf"{'-'*100}")
 
     hb1_start = load(omega('HB1'), ISW=1)
+    print(hb1_start)
     # Run forward
     hb1_forward = run(hb1_start, IPS=2, MXBF = 1,
                     ICP=['V', 'PERIOD'],
                     THL =  {'PERIOD': 0.10},
                     NTST = 100, NCOL = 5, NMX=400000, NPR=100000,
-                    DS=0.001, DSMAX = 1e-1,
+                    DS=1e-6, DSMAX = 1e-1,
                     EPSL = 1e-4, EPSU = 1e-4, EPSS = 1e-2,
                     SP = ['BP1'],ISW = -1,
                     JAC = 0)
@@ -68,6 +69,20 @@ def run_simple_wang(parameter, system_chosen):
     # Run backwards
     hb1 = hb1_forward 
     hb1_labels = ['HB1_fwd', 'HB1_bwd']
+    
+    #bp1_start = load(hb1_forward('BP'), ISW=1)
+    #print(bp1_start)
+    
+    # Run forward
+    #bp1_forward = run(bp1_start, IPS=2, MXBF = 1,
+    #                ICP=['V', 'PERIOD'],
+    #                THL =  {'PERIOD': 0.10},
+    #                NTST = 100, NCOL = 5, NMX=400000, NPR=100000,
+    #                DS=0.001, DSMAX = 1e-1,
+    #                EPSL = 1e-4, EPSU = 1e-4, EPSS = 1e-2,
+    #                SP = ['BP1'],ISW = -1,
+    #                JAC = 0)
+    #fort9_df_fwd = parse_fort9()
 
     # Extract the data and export to a csv file
     #hb1_df = [extract_data(hb1[i], data_label = hb1_labels[i], system=system_chosen) for i in range(len(hb1))]
@@ -118,7 +133,7 @@ def run_simple_wang(parameter, system_chosen):
     #fort9_df['system_id'] = system_chosen
     #fort9_df.to_csv(Path(data_dir,system_chosen+"_hb2_fort9.csv"), index = False)
 
-    return omega + hb1 + hb2
+    return omega + hb1 + hb2 #+bp1_forward
     
     
 def main():
